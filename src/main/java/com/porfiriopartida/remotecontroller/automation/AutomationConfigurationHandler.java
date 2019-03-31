@@ -1,5 +1,6 @@
 package com.porfiriopartida.remotecontroller.automation;
 
+import com.porfiriopartida.remotecontroller.ThreadHandler;
 import com.porfiriopartida.remotecontroller.automation.config.AutomationConstants;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +28,7 @@ public class AutomationConfigurationHandler {
     @Autowired
     private RobotUtils robotUtils;
     public static boolean IS_RUNNING = false;
-    public static final String ALWAYS_CLICK_PATTERN = "automation.%s.always_click";
+    public static final String ALWAYS_CLICK_PATTERN = "automation.%s.test_cases.%s.always_click";
     public static final String IDENTIFY_PATTERN = "automation.%s.identify";
     public static final int SCAN_DELAY = 2000;
     public static final int SCAN_DELAY_RND = 1000;
@@ -59,23 +60,16 @@ public class AutomationConfigurationHandler {
         }
     }
 
-    public void loadConfigurations(){
-        if(IS_RUNNING){
-            return;
-        }
-        logger.debug("loadConfigurations...!!");
-        //env.getProperty("automation.swgoh.test_cases.open_swgoh.steps")
-    }
-    public String getAlwaysClickResource(String namespace, String resource) throws FileNotFoundException {
-        String filename = String.format("external_resources/in/%s/always_click/%s", namespace, resource);
+    public String getAlwaysClickResource(String namespace, String testCase, String resource) throws FileNotFoundException {
+        String filename = String.format("in/%s/test_cases/%s/always_click/%s", namespace, testCase, resource);
         return getResourceFilename(filename);
     }
     public String getIdentifiersResource(String namespace, String resource) throws FileNotFoundException {
-        String filename = String.format("external_resources/in/%s/identifiers/%s", namespace, resource);
+        String filename = String.format("in/%s/identifiers/%s", namespace, resource);
         return getResourceFilename(filename);
     }
     public final String[] getTestStepResources(String namespace, String testName, String[] filenames) throws FileNotFoundException {
-        String format = "external_resources/in/%s/test_cases/%s/%s";
+        String format = "in/%s/test_cases/%s/%s";
         String[] resources = new String[filenames.length];
         for (int i = 0; i < resources.length; i++) {
             resources[i] = getResourceFilename(String.format(format, namespace, testName, filenames[i]));
@@ -190,9 +184,9 @@ public class AutomationConfigurationHandler {
         return identifiersValues[identity];
     }
 
-    private void executeThreadAlwaysClick(String namespace, String[] alwaysClickArray) throws FileNotFoundException {
+    private void executeThreadAlwaysClick(String namespace, String testCase, String[] alwaysClickArray) throws FileNotFoundException {
         for(int i = 0; i<alwaysClickArray.length;i++){
-            alwaysClickArray[i] = getAlwaysClickResource(namespace, alwaysClickArray[i]);
+            alwaysClickArray[i] = getAlwaysClickResource(namespace, testCase, alwaysClickArray[i]);
         }
         new Thread(){
             @Override
@@ -215,24 +209,26 @@ public class AutomationConfigurationHandler {
     public void runTestCase(String namespace, String testCase) throws FileNotFoundException {
         IDENTIFIER = DEFAULT_IDENTIFIER;
         final Environment environment = this.env;
-        String alwaysClickConfiguration = environment.getProperty(String.format(ALWAYS_CLICK_PATTERN, namespace));
+        String alwaysClickConfiguration = environment.getProperty(String.format(ALWAYS_CLICK_PATTERN, namespace, testCase));
         String identifyConfiguration = environment.getProperty(String.format(IDENTIFY_PATTERN, namespace));
 
         //This is just so these are put in context and run once (they are a while true thread)
         if(!IS_RUNNING){
             IS_RUNNING = true;
+            ThreadHandler threadHandler = new ThreadHandler();
+
             logger.debug("Initializing threads for always/identifiers");
             if(alwaysClickConfiguration != null){
                 final String[] alwaysClickArray = alwaysClickConfiguration.split(" ");
-                executeThreadAlwaysClick(namespace, alwaysClickArray);
+                executeThreadAlwaysClick(namespace, testCase, alwaysClickArray);
             }
             if(identifyConfiguration != null){
                 final String[] identifiers = identifyConfiguration.split(" ");
                 executeThreadIdentifier(namespace, identifiers);
             }
-        }
-        if(testCase != null){
-            executeThreadTestCase(namespace, testCase);
+            if(testCase != null){
+                executeThreadTestCase(namespace, testCase);
+            }
         }
     }
 

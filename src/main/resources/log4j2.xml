@@ -26,7 +26,7 @@
 
     <Loggers>
         <Logger name="com.porfiriopartida" level="debug" additivity="false">
-            <AppenderRef ref="FileAppender" />
+            <AppenderRef ref="ConsoleAppender" />
         </Logger>
 
         <Root level="debug">

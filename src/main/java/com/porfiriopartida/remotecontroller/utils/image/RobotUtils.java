@@ -7,6 +7,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -24,16 +25,18 @@ public class RobotUtils {
     private static final String OUT_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\out\\";
     private static final String IN_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\in\\";
     private static final int TRANSPARENT_PIXEL = -1;
+    @Autowired
+    @Qualifier("robot")
     private Robot robot;
     private static final Logger logger = LogManager.getLogger(RobotUtils.class);
 
-    {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            System.err.println(e.getMessage());
-        }
-    }
+//    {
+//        try {
+//            robot = new Robot();
+//        } catch (AWTException e) {
+//            System.err.println(e.getMessage());
+//        }
+//    }
 
 //    public RobotUtils() throws AWTException {
 //        robot = new Robot();
