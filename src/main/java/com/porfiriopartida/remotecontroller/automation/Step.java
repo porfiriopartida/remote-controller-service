@@ -5,6 +5,8 @@ public class Step {
     private String[] filenames;
     private String namespace;
     private String testName;
+    private RunStatus runStatus = RunStatus.NOT_RUN;
+    private String stepName;
 
     public static Step[] fromArray(String namespace, String testCase, String[] array){
         Step[] steps = new Step[array.length];
@@ -13,18 +15,30 @@ public class Step {
             step.setNamespace(namespace);
             step.setTestName(testCase);
             String[] args = array[i].split("\\|");
+            String name = "Step " + i;
+            boolean wait = true;
+            String filenames = null;
             if(args.length == 1){
-                step.setFilenames(array[i]);
-                step.setWait(true);
+                filenames = array[i];
+                name = String.format("Step_%s_%s", i, array[i]);
             } else if(args.length == 2){
-                step.setFilenames(args[1]);
-                step.setWait("1".equals(args[0]));
+                filenames = args[1];
+                name = String.format("Step_%s_%s", i, args[1]);
+                wait = "1".equals(args[0]);
             } else{
                 step = null;
             }
+
+            step.setFilenames(filenames);
+            step.setWait(wait);
+            step.setStepName(name);
             steps[i] = step;
         }
         return steps;
+    }
+
+    private void setStepName(String name) {
+        this.stepName = name;
     }
 
     public String[] getFilenames() {
@@ -60,5 +74,17 @@ public class Step {
 
     public void setTestName(String testName) {
         this.testName = testName;
+    }
+
+    public RunStatus getRunStatus() {
+        return runStatus;
+    }
+
+    public void setRunStatus(RunStatus runStatus) {
+        this.runStatus = runStatus;
+    }
+
+    public String getStepName() {
+        return stepName;
     }
 }

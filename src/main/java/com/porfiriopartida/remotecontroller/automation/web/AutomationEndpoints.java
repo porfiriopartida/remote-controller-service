@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileNotFoundException;
-
 @RestController
 @RequestMapping(value = "/automation")
 public class AutomationEndpoints {
@@ -16,9 +14,8 @@ public class AutomationEndpoints {
 
     @RequestMapping(value = "/{namespace}/{test}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    public CustomResponse runTestCase(@PathVariable(name = "namespace") String namespace, @PathVariable(name = "test") String testCase) throws FileNotFoundException {
+    public CustomResponse runTestCase(@PathVariable(name = "namespace") String namespace, @PathVariable(name = "test") String testCase) throws Exception {
         automationHandler.runTestCase(namespace, testCase);
-
 
         String status = "Starting swgoh.";
 

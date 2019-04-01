@@ -40,7 +40,7 @@ public class SwgohEndpoints {
             return "";
         }
     }
-    @RequestMapping(value = "/stop")
+    @RequestMapping(value = "/stopRun")
     @ResponseStatus(HttpStatus.OK)
     public CustomResponse stop(HttpServletRequest request, HttpServletResponse response){
         String status = "Bot stopped";

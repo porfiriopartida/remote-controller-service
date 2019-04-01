@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
@@ -22,12 +20,9 @@ public class AutomationConfigurationHandlerConfigurationTest {
     @Autowired
     private AutomationConfigurationHandler handler;
     private RobotUtils robotUtilsMock;
-//    @Value("${automation.files.external_resources_path}")
-//    private String externalResources;
     @Before
     public void init(){
         robotUtilsMock = EasyMock.createStrictMock(RobotUtils.class);
-        handler.setRobotUtils(robotUtilsMock);
     }
     @Test
     public void testGetStepsNames(){
@@ -119,34 +114,7 @@ public class AutomationConfigurationHandlerConfigurationTest {
     }
 
     @Test
-    public void executeTestSteps() throws AWTException, InterruptedException, IOException {
-        String[] stepsArray = new String[]{
-                "1|step1.png,step1_alt.png",
-                "step2.png",
-                "0|step3.png,step3_alt.png"};
-
-        String namespace = "testing";
-        String testName = "executeTestSteps";
-
-        Step[] steps = Step.fromArray(namespace,testName, stepsArray);
-
-        EasyMock.expect(robotUtilsMock.clickOnScreen(true, handler.getTestStepResources(namespace, testName, steps[0].getFilenames()))).andReturn(true);
-        EasyMock.expect(robotUtilsMock.clickOnScreen(AutomationConstants.DEFAULT_WAIT_BEHAVIOR, handler.getTestStepResources(namespace, testName, steps[1].getFilenames()))).andReturn(true);
-        EasyMock.expect(robotUtilsMock.clickOnScreen(false, handler.getTestStepResources(namespace, testName, steps[2].getFilenames()))).andReturn(true);
-
-        EasyMock.replay(robotUtilsMock);
-
-        handler.executeTestSteps(steps);
-
-        EasyMock.verify(robotUtilsMock);
-    }
-    @Test
-    public void testSleepConfig(){
-
-    }
-    @Test
     public void testExternalResourcesPath() throws FileNotFoundException {
-//        assertNotNull(externalResources);
         String f = handler.getResourceFilename("test.txt");
         assertEquals("C:\\Windows\\test.txt", f);
     }

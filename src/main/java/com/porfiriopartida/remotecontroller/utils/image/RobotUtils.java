@@ -30,18 +30,6 @@ public class RobotUtils {
     private Robot robot;
     private static final Logger logger = LogManager.getLogger(RobotUtils.class);
 
-//    {
-//        try {
-//            robot = new Robot();
-//        } catch (AWTException e) {
-//            System.err.println(e.getMessage());
-//        }
-//    }
-
-//    public RobotUtils() throws AWTException {
-//        robot = new Robot();
-//    }
-
     @Autowired
     private ScreenCaptureConfig screenCaptureConfig;
 
@@ -148,8 +136,14 @@ public class RobotUtils {
         if(cache.get(filename) != null){
             return cache.get(filename);
         }
-        BufferedImage newImage = ImageIO.read(new File(getInputFilename(filename)));
-        cache.put(filename, newImage);
+        BufferedImage newImage;
+        try{
+            newImage = ImageIO.read(new File(getInputFilename(filename)));
+            cache.put(filename, newImage);
+        } catch (IOException e){
+            logger.error(String.format("Error reading file: %s", filename));
+            throw e;
+        }
         return newImage;
     }
     public String getInputFilename(String filename){

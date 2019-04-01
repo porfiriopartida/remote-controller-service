@@ -1,95 +1,193 @@
 package com.porfiriopartida.remotecontroller;
 
+import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
+import com.porfiriopartida.remotecontroller.automation.Step;
+import com.porfiriopartida.remotecontroller.automation.RunStatus;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.io.FileNotFoundException;
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 @Component
 public class ThreadHandler {
-    private boolean IS_RUNNING = false;
+    private ThreadHandlerCallback callback;
+    private boolean isRunning = false;
     private static final Logger logger = LogManager.getLogger(ThreadHandler.class);
 
-    private ArrayList<Thread> threads;
+    private Random rnd = new Random();
+    private ArrayList<TestCaseThread> threads;
 
-    public ThreadHandler() {
-        threads = new ArrayList<>();
+    @Autowired
+    private RobotUtils robotUtils;
+    RunStatus runStatus = RunStatus.NOT_RUN;
+
+    public RunStatus getRunStatus() {
+        return runStatus;
     }
 
-    private Thread alwaysRunThread;
+    public void setRunStatus(RunStatus runStatus) {
+        this.runStatus = runStatus;
+    }
 
-    public Thread getAlwaysRunThread() {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
+
+    public ThreadHandler() {
+        this(null);
+    }
+    public ThreadHandler(ThreadHandlerCallback callback) {
+        this.callback = callback;
+        threads = new ArrayList<TestCaseThread>();
+        name = "threadHandler";
+    }
+
+    private TestCaseThread alwaysRunThread;
+
+    public TestCaseThread getAlwaysRunThread() {
         return alwaysRunThread;
     }
 
-    public Thread getTestCaseThread() {
+    public TestCaseThread getTestCaseThread() {
         return testCaseThread;
     }
 
-    public Thread getIdentifyThread() {
-        return identifyThread;
-    }
-
-    private Thread testCaseThread;
-    private Thread identifyThread;
+    private TestCaseThread testCaseThread;
 
     public static final String TEST_CASE_RUNNING_EXCEPTION = "Test Case is already running";
-
-    public void runTestCase(String namespace, String testCase) throws Exception {
-        if(IS_RUNNING) {
+    public void setup(String[] alwaysClick, Step[] steps) throws Exception {
+        if(isRunning) {
             throw new Exception(TEST_CASE_RUNNING_EXCEPTION);
         }
-        IS_RUNNING = true;
+        this.steps = steps;
 
-        executeThreadAlwaysClick();
-        executeThreadIdentifier();
-        executeThreadTestCase();
-        for(Thread t : this.threads){
+        addThreads(alwaysClick, steps);
+    }
+    public void runTestCase() throws Exception {
+        if(isRunning) {
+            throw new Exception(TEST_CASE_RUNNING_EXCEPTION);
+        }
+
+        try{
+            startThreads();
+        }catch (TestCaseValidationException e){
+            isRunning = false;
+            logger.error(e);
+            throw e;
+        }
+
+    }
+
+    private void startThreads() throws TestCaseValidationException {
+        validate();
+        isRunning = true;
+        runStatus = RunStatus.FAILED;
+        //Validate must run before this.
+        for(TestCaseThread t : threads){
             t.start();
         }
     }
 
-    private void executeThreadTestCase() {
-        this.testCaseThread = new Thread(){
+    private void addThreads(String[] alwaysClickArray, Step[] steps) {
+        buildAlwaysClickThread(alwaysClickArray);
+        buildTestCaseThread(steps);
+    }
+
+    Step[] steps;
+    private void buildTestCaseThread(Step[] steps) {
+        final ThreadHandler that = this;
+        this.testCaseThread = new TestCaseThread(){
             @Override
             public void run() {
                 super.run();
-                while(IS_RUNNING){
-
+                try {
+                    boolean result = executeTestSteps(steps);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+                finally {
+                    isRunning = false;
+                    verifySteps();
+                    if(callback != null){
+                        callback.testExecutionCompleted(that);
+                    }
                 }
             }
+
+            private boolean executeTestSteps(Step[] steps){
+                boolean result = false;
+                for (int i = 0; i < steps.length; i++) {
+                    logger.debug(String.format("=== Running step %s:%s", i, steps[i].getFilenames()[0]));
+                    Step step = steps[i];
+                    try {
+                        result = robotUtils.clickOnScreen(step.isWait(), step.getFilenames());
+                        if(step.isWait()){
+                            step.setRunStatus(result ? RunStatus.SUCCESS : RunStatus.FAILED);
+                        } else {
+                            step.setRunStatus(RunStatus.SUCCESS);
+                        }
+                        Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
+                    } catch (AWTException | InterruptedException | IOException e) {
+                        e.printStackTrace();
+                        result = false;
+                    }
+                    if(!result){
+                        logger.error(String.format("=======\nSomething went wrong with the step %s\n======", i));
+                    }
+                }
+                return result;
+            }
         };
+
+        testCaseThread.setReady(steps != null && steps.length > 0);
+        this.testCaseThread.setName("testCaseThread");
         this.threads.add(testCaseThread);
     }
-    private void executeThreadIdentifier() {
-        this.identifyThread = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                while(IS_RUNNING){
 
-                }
+    private void verifySteps() {
+        RunStatus finalStatus = RunStatus.SUCCESS;
+        for(Step step : steps){
+            if(RunStatus.FAILED.equals(step.getRunStatus())){
+                finalStatus = RunStatus.FAILED;
+                break;
             }
-        };
-        this.threads.add(identifyThread);
+        }
+        runStatus = finalStatus;
     }
-    private void executeThreadAlwaysClick() {
-        this.alwaysRunThread = new Thread(){
+
+    private void buildAlwaysClickThread(final String[] alwaysClickArray) {
+        this.alwaysRunThread = new TestCaseThread(){
             @Override
             public void run() {
                 super.run();
-                while(IS_RUNNING){
-
+                if(!isReady()){
+                    return;
+                }
+                //TODO: Add test for empty / null array
+                if(alwaysClickArray == null || alwaysClickArray.length == 0){
+                    return;
+                }
+                while(isRunning){
+                    try {
+                        boolean clicked = robotUtils.clickOnScreen(false, alwaysClickArray);
+                        Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
+                    } catch (Exception e) {
+                        logger.error(e);
+                        continue;
+                    }
                 }
             }
         };
+        alwaysRunThread.setReady(true);
+        this.alwaysRunThread.setName("alwaysRunThread");
         this.threads.add(alwaysRunThread);
     }
     public int getThreadsCount() {
@@ -112,10 +210,37 @@ public class ThreadHandler {
         }
         return c;
     }
-    public void stop() {
-        IS_RUNNING = false;
+    public void stopRun() {
+        isRunning = false;
         while(isAnyThreadRunning()){
             //Lock the current thread until all running threads are stopped.
         }
+    }
+
+    public void validate() throws TestCaseValidationException {
+        if(this.threads.size() == 0){
+            throw new TestCaseValidationException("Empty threads list.");
+        }
+        for(TestCaseThread t : threads){
+            if(!t.isReady()){
+                throw new TestCaseValidationException(String.format("Thread {%s} is not ready", t.getName()));
+            }
+        }
+    }
+
+    public RobotUtils getRobotUtils() {
+        return robotUtils;
+    }
+
+    public void setRobotUtils(RobotUtils robotUtils) {
+        this.robotUtils = robotUtils;
+    }
+
+    public Step[] getSteps() {
+        return this.steps;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

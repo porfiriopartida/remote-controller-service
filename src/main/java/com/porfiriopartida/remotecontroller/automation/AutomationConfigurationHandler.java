@@ -1,7 +1,7 @@
 package com.porfiriopartida.remotecontroller.automation;
 
 import com.porfiriopartida.remotecontroller.ThreadHandler;
-import com.porfiriopartida.remotecontroller.automation.config.AutomationConstants;
+import com.porfiriopartida.remotecontroller.ThreadHandlerCallback;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,38 +10,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Random;
+import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
 
 @Component
-public class AutomationConfigurationHandler {
+public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     private static final Logger logger = LogManager.getLogger(AutomationConfigurationHandler.class);
-    private static final String IDENTIFIER_SPLITTER = ",";
+
     @Resource
     public Environment env;
-    @Autowired
-    private RobotUtils robotUtils;
-    public static boolean IS_RUNNING = false;
-    public static final String ALWAYS_CLICK_PATTERN = "automation.%s.test_cases.%s.always_click";
-    public static final String IDENTIFY_PATTERN = "automation.%s.identify";
-    public static final int SCAN_DELAY = 2000;
-    public static final int SCAN_DELAY_RND = 1000;
-    public static String DEFAULT_IDENTIFIER = "UNKNOWN";
-    public static String IDENTIFIER = DEFAULT_IDENTIFIER;
+
     public String[] identifiersValues;
     //TODO: Move to config file class
     @Value("${automation.files.strictMode}")
     private boolean strictMode;
     @Value("${automation.files.external_resources_path}")
     private String externalResourcesDirectory;
-
-    private Random rnd = new Random();
+    @Autowired
+    private RobotUtils robotUtils;
 
     public AutomationConfigurationHandler(){
     }
@@ -116,138 +106,48 @@ public class AutomationConfigurationHandler {
         String propertyString = String.format(propertyFormat, namespace, testCase);
         return env.getProperty(propertyString);
     }
-    public boolean executeTestSteps(Step[] steps){
-        boolean result = false;
-        for (int i = 0; i < steps.length; i++) {
-            logger.debug(String.format("=== Running step %s:%s", i, steps[i].getFilenames()[0]));
-            Step step = steps[i];
-            try {
-                result = robotUtils.clickOnScreen(step.isWait(), getTestStepResources(step.getNamespace(), step.getTestName(), step.getFilenames()));
-                Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
-            } catch (AWTException | InterruptedException | IOException e) {
-                e.printStackTrace();
-                result = false;
-            }
-            if(!result){
-                logger.error(String.format("=======\nSomething went wrong with the step %s\n======", i));
-            }
-        }
-        return result;
-    }
-    private void executeThreadTestCase(String namespace, String testCase) {
-        final Step[] steps = getSteps(namespace, testCase);
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                logger.debug(String.format("Running testcase: %s.%s", namespace, testCase));
-                boolean result = executeTestSteps(steps);
-                logger.debug(String.format("TEST EXECUTION FINISHED: %s.%s - %s", namespace, testCase, result ? AutomationConstants.RUN_SUCCESS : AutomationConstants.RUN_FAILURE));
-            }
-        }.start();
-    }
 
-    private void executeThreadIdentifier(String namespace, String[] identifiers) throws FileNotFoundException {
-        for(int i=0;i<identifiers.length;i++){
-            identifiers[i] = getIdentifiersResource(namespace, identifiers[i]);
-        }
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                if(identifiersValues == null){
-                    buildIdentifiers();
-                }
-
-                while(IS_RUNNING){
-                    try {
-                        String newIdentity = getIdentityName(getIdentity(identifiers));
-                        if(newIdentity != IDENTIFIER && newIdentity != null){
-                            IDENTIFIER = newIdentity;
-                            logger.debug("New identifier: " + IDENTIFIER);
-                            //Thread.sleep(SCAN_DELAY * 10);
-                        }
-                        Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
-                    } catch (Exception e) {
-                        continue;
-                    }
-                }
-            }
-        }.start();
-    }
-
-    private String getIdentityName(int identity) {
-        if(identity < 0 || identity >= identifiersValues.length){
-            return DEFAULT_IDENTIFIER;
-        }
-
-        return identifiersValues[identity];
-    }
-
-    private void executeThreadAlwaysClick(String namespace, String testCase, String[] alwaysClickArray) throws FileNotFoundException {
-        for(int i = 0; i<alwaysClickArray.length;i++){
-            alwaysClickArray[i] = getAlwaysClickResource(namespace, testCase, alwaysClickArray[i]);
-        }
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                while(IS_RUNNING){
-                    try {
-                        boolean clicked = robotUtils.clickOnScreen(true, alwaysClickArray);
-                        if(clicked){
-                            printIdentity();
-                        }
-                        Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
-                    } catch (Exception e) {
-                        continue;
-                    }
-                }
-            }
-        }.start();
-    }
-    public void runTestCase(String namespace, String testCase) throws FileNotFoundException {
+    public void runTestCase(String namespace, String testCase) throws Exception {
         IDENTIFIER = DEFAULT_IDENTIFIER;
         final Environment environment = this.env;
         String alwaysClickConfiguration = environment.getProperty(String.format(ALWAYS_CLICK_PATTERN, namespace, testCase));
-        String identifyConfiguration = environment.getProperty(String.format(IDENTIFY_PATTERN, namespace));
+//        String identifyConfiguration = environment.getProperty(String.format(IDENTIFY_PATTERN, namespace));
 
         //This is just so these are put in context and run once (they are a while true thread)
-        if(!IS_RUNNING){
-            IS_RUNNING = true;
-            ThreadHandler threadHandler = new ThreadHandler();
+        ThreadHandler threadHandler = new ThreadHandler(this);
+        threadHandler.setRobotUtils(this.robotUtils);
+        threadHandler.setName(String.format("%s.%s", namespace, testCase));
+        Step[] steps = null;
+        String[] alwaysClickArray = null;
 
-            logger.debug("Initializing threads for always/identifiers");
-            if(alwaysClickConfiguration != null){
-                final String[] alwaysClickArray = alwaysClickConfiguration.split(" ");
-                executeThreadAlwaysClick(namespace, testCase, alwaysClickArray);
-            }
-            if(identifyConfiguration != null){
-                final String[] identifiers = identifyConfiguration.split(" ");
-                executeThreadIdentifier(namespace, identifiers);
-            }
-            if(testCase != null){
-                executeThreadTestCase(namespace, testCase);
+        logger.debug("Initializing threads for always/identifiers");
+        if(!StringUtils.isEmpty(alwaysClickConfiguration)){
+            alwaysClickArray = alwaysClickConfiguration.split(" ");
+
+            for(int i = 0; i<alwaysClickArray.length;i++){
+                alwaysClickArray[i] = getAlwaysClickResource(namespace, testCase, alwaysClickArray[i]);
             }
         }
-    }
 
-    private void printIdentity() {
-        logger.debug("Action by: " + IDENTIFIER);
-    }
+        if(testCase != null){
+            steps = getSteps(namespace, testCase);
 
-    private int getIdentity(String[] identifiers ) throws IOException, AWTException {
-        while(true){
-            for (int i = 0; i < identifiers.length; i++) {
-                Point coords = robotUtils.findOnScreen(identifiers[i]);
-                if(coords != null){
-                    return i;
-                }
+            for (int i = 0; i < steps.length; i++) {
+                Step step = steps[i];
+                step.setFilenames( getTestStepResources(namespace, testCase, step.getFilenames()));
             }
         }
+
+        threadHandler.setup(alwaysClickArray, steps);
+        threadHandler.runTestCase();
     }
-    //Mainly for test purposes.
-    public void setRobotUtils(RobotUtils robotUtils) {
-        this.robotUtils = robotUtils;
+
+    @Override
+    public void testExecutionCompleted(ThreadHandler handler) {
+        Step[] steps = handler.getSteps();
+        logger.info(String.format("Test results for: %s [%s]", handler.getName(), handler.getRunStatus()));
+        for(Step step : steps){
+            logger.info(String.format("Test run: %s [%s]", step.getStepName(), step.getRunStatus()));
+        }
     }
 }
