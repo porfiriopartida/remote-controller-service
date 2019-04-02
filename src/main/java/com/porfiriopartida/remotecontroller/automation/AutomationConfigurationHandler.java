@@ -79,7 +79,9 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         //Class Loader and getResource can be used here but just for inside the resources.
         File parentDirectory = new File(externalResourcesDirectory);
         if(!parentDirectory.isDirectory() ){
-            throw new FileNotFoundException(String.format("Directory not found %s", externalResourcesDirectory));
+            if(strictMode){
+                throw new FileNotFoundException(String.format("Directory not found %s", externalResourcesDirectory));
+            }
         }
         String finalFilename = String.format("%s/%s", externalResourcesDirectory, filename);
         File resource = new File(finalFilename );
