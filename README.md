@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/ppartida/remote-controller-service.svg?branch=master)](https://travis-ci.com/ppartida/remote-controller-service)
+
 # Remote Controller Service
 
 A screenshot based remote automation service that allows HTTP requests to trigger
