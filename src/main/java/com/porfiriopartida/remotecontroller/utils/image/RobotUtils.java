@@ -25,9 +25,15 @@ public class RobotUtils {
     private static final String OUT_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\out\\";
     private static final String IN_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\in\\";
     private static final int TRANSPARENT_PIXEL = -1;
-    @Autowired
-    @Qualifier("robot")
     private Robot robot;
+    {
+        try {
+		    System.setProperty("java.awt.headless", "true");
+            robot = new Robot();
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+    }
     private static final Logger logger = LogManager.getLogger(RobotUtils.class);
 
     @Autowired
@@ -169,10 +175,7 @@ public class RobotUtils {
         return data;
     }
     public boolean isTransparent( int pixel) {
-        if( (pixel>>24) == 0x00 ) {
-            return true;
-        }
-        return false;
+        return (pixel >> 24) == 0x00;
     }
 
     public boolean clickOnScreen(boolean waitUntilPresent, String ... filenames) throws AWTException, InterruptedException, IOException {

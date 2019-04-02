@@ -1,10 +1,15 @@
 package com.porfiriopartida.remotecontroller.swgoh;
 
+import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.Random;
 @Deprecated
 public class ClickBot {
+    @Autowired
+    private RobotUtils robotUtils;
     public static ClickBot self = null;
     private ClickBot(){
 
@@ -23,29 +28,24 @@ public class ClickBot {
         running = true;
     }
     public void start() {
-        Robot robot = null;
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
-        Robot finalRobot = robot;
+        Robot finalRobot = robotUtils.getRobot();
         final Random rnd = new Random();
         new Thread(){
             @Override
             public void run() {
                 super.run();
                 while(true){
+                    if (!running){
+                        break;
+                    }
                     try {
-                        if(running){
 //                        PointerInfo a = MouseInfo.getPointerInfo();
 //                        Point point = a.getLocation();
 //                        logger.debug(String.format("%s, %s", point.x, point.y));
-                            finalRobot.mouseMove(rnd.nextInt(20) + 1600, 915);
-                            finalRobot.mousePress(InputEvent.BUTTON1_MASK);
-                            Thread.sleep(rnd.nextInt(100));
-                            finalRobot.mouseRelease(InputEvent.BUTTON1_MASK);
-                        }
+                        finalRobot.mouseMove(rnd.nextInt(20) + 1600, 915);
+                        finalRobot.mousePress(InputEvent.BUTTON1_MASK);
+                        Thread.sleep(rnd.nextInt(100));
+                        finalRobot.mouseRelease(InputEvent.BUTTON1_MASK);
 
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
