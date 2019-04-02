@@ -42,7 +42,7 @@ public class ScreenEndpoints {
 
     @RequestMapping(value = "/capture")
     @ResponseStatus(HttpStatus.OK)
-    public String fullScreenshot(HttpServletRequest request, HttpServletResponse response) throws IOException, AWTException {
+    public String fullScreenshot() throws IOException, AWTException {
         return robotUtils.getImageAsString(IMG_SRC, 0, 0, screenSizeConfig.getWidth(), screenSizeConfig.getHeight());
     }
 

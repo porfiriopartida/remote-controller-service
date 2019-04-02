@@ -78,13 +78,12 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         //AutomationConfigurationHandler.class.getProtectionDomain().getCodeSource().getLocation()     .toURI()
         //Class Loader and getResource can be used here but just for inside the resources.
         File parentDirectory = new File(externalResourcesDirectory);
-        if(parentDirectory == null || !parentDirectory.isDirectory() ){
+        if(!parentDirectory.isDirectory() ){
             throw new FileNotFoundException(String.format("Directory not found %s", externalResourcesDirectory));
         }
         String finalFilename = String.format("%s/%s", externalResourcesDirectory, filename);
         File resource = new File(finalFilename );
-
-        if(resource == null || !resource.exists()){
+        if(!resource.exists()){
             if(strictMode){
                 throw new FileNotFoundException(String.format("File not found: %s", filename));
             }
@@ -98,8 +97,7 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     public Step[] getSteps(String namespace, String testCase){
         String stepsString = getStepsString(namespace, testCase);
         String[] stepsArray = stepsString.split(" "); //the resulting string from envs is always space.
-        Step[] steps = Step.fromArray(namespace, testCase, stepsArray);
-        return steps;
+        return Step.fromArray(namespace, testCase, stepsArray);
     }
     public String getStepsString(String namespace, String testCase){
         String propertyFormat = "automation.%s.test_cases.%s.steps";

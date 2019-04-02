@@ -14,7 +14,7 @@ MyCustomApp:
               closed_application_icon.png
         close_application:
             steps:
-              0|minimed_application_icon.png
+              0|minimized_application_icon.png
               application_x.png
 
 GET http://localhost/MyCustomApp/open_application

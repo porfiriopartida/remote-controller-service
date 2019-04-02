@@ -29,9 +29,12 @@ public class Step {
                 step = null;
             }
 
-            step.setFilenames(filenames);
-            step.setWait(wait);
-            step.setStepName(name);
+            if(step != null){
+                step.setFilenames(filenames);
+                step.setWait(wait);
+                step.setStepName(name);
+            }
+
             steps[i] = step;
         }
         return steps;

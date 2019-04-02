@@ -7,7 +7,6 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -16,6 +15,7 @@ import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -69,10 +69,10 @@ public class RobotUtils {
     @Autowired
     private MouseConfig mouseConfig;
 
-    public BufferedImage getImage(int x, int y, int w, int h) throws AWTException {
+    public BufferedImage getImage(int x, int y, int w, int h) {
         return this.getImage(x, y, w, h, false);
     }
-    public BufferedImage getImage(int x, int y, int w, int h, boolean centered) throws AWTException {
+    public BufferedImage getImage(int x, int y, int w, int h, boolean centered) {
 
         Rectangle rectangle;
         int realW =  w > 0 ? w: screenCaptureConfig.getSmall().getWidth();
@@ -85,10 +85,8 @@ public class RobotUtils {
 //        bufferedImage.getGraphics().drawString("x", w/2, h/2);
         rectangle = new Rectangle(x, y, realW, realH);
 
-        BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
 
-
-        return bufferedImage;
+        return robot.createScreenCapture(rectangle);
     }
     public byte[] getImageAsBytes(BufferedImage image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -122,7 +120,7 @@ public class RobotUtils {
         return String.format(imageWrapper, encodedImage);
     }
 
-    public void triggerClick(int x, int y, int count) throws AWTException, InterruptedException {
+    public void triggerClick(int x, int y, int count) throws InterruptedException {
         robot.mouseMove(x, y);
         Thread.sleep(500);
         for(int i = 0; i<count && i < mouseConfig.getMaxClicks(); i++){
@@ -155,7 +153,7 @@ public class RobotUtils {
     public String getInputFilename(String filename){
         return filename;
     }
-    public int[][] getRgbFromImage(BufferedImage bufferedImage) throws IOException {
+    public int[][] getRgbFromImage(BufferedImage bufferedImage) {
         int[][] data = new int[bufferedImage.getWidth()][bufferedImage.getHeight()];
 
         int width = bufferedImage.getWidth();
@@ -237,28 +235,25 @@ public class RobotUtils {
         int centeredX = (int) topLeftPoint.getX() + subImage.getWidth()/2;
         int centeredY = (int) topLeftPoint.getY() + subImage.getHeight()/2;
 
-        Point centeredPoint = new Point( centeredX, centeredY);
-
-        return centeredPoint;
+        return new Point( centeredX, centeredY);
     }
 
     private void printPixels(int[][] subData, String dataPixel, String emptyPixel) {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for(int i=0;i<subData.length;i++){
             for(int j=0;j<subData[0].length;j++) {
                 if(subData[i][j] == TRANSPARENT_PIXEL){
-                    str += (emptyPixel);
+                    str.append(emptyPixel);
                 } else {
-                    str += (dataPixel);
+                    str.append(dataPixel);
                 }
             }
-            str += "\n";
+            str.append("\n");
         }
-        logger.debug(str);
+        logger.debug(str.toString());
     }
 
-    public Point matrixContains(int[][] fullScreenData, int[][] subImageData) throws IOException, AWTException {
-        outerRow:
+    public Point matrixContains(int[][] fullScreenData, int[][] subImageData) {
         for (int or = 0; or <= fullScreenData.length - subImageData.length; or++) {
             outerCol:
             for (int oc = 0; oc <= fullScreenData[or].length - subImageData[0].length; oc++) {
@@ -282,9 +277,12 @@ public class RobotUtils {
         String newFile = OUT_DIR + filename;
         try {
             File f = new File(newFile);
-            f.getParentFile().mkdir();
-            f.createNewFile();
-
+            if(!f.getParentFile().mkdir()){
+                throw new FileNotFoundException(String.format("Couldn't directory for %s", filename));
+            }
+            if(!f.createNewFile()){
+                throw new FileNotFoundException(String.format("Couldn't create file %s", newFile));
+            }
             ImageIO.write(bImage, "jpg", f);
         } catch (IOException e) {
             logger.error("Exception occured: " + e.getMessage());

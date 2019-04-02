@@ -185,7 +185,6 @@ public class ThreadHandler {
                         Thread.sleep(SCAN_DELAY + rnd.nextInt(SCAN_DELAY_RND));
                     } catch (Exception e) {
                         logger.error(e);
-                        continue;
                     }
                 }
             }
