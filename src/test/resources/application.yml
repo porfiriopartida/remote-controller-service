@@ -1,6 +1,6 @@
 automation:
   files:
-    external_resources_path: C:\Windows
+    external_resources_path: MyDir
     strictMode: false
   identifiers:
     default: TestIdentifier

@@ -83,13 +83,13 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
                 throw new FileNotFoundException(String.format("Directory not found %s", externalResourcesDirectory));
             }
         }
-        String finalFilename = String.format("%s/%s", externalResourcesDirectory, filename);
+        String finalFilename = String.format("%s" + FILE_SEPARATOR + "%s", externalResourcesDirectory, filename);
         File resource = new File(finalFilename );
         if(!resource.exists()){
             if(strictMode){
                 throw new FileNotFoundException(String.format("File not found: %s", filename));
             }
-            return filename;
+            return finalFilename;
         } else if(resource.isDirectory()){
             throw new InvalidFileNameException(finalFilename, String.format("File must not be a directory: %s", finalFilename));
         }

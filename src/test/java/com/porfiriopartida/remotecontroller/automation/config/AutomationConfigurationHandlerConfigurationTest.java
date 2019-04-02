@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.FileNotFoundException;
 
+import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
 import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -116,6 +117,7 @@ public class AutomationConfigurationHandlerConfigurationTest {
     @Test
     public void testExternalResourcesPath() throws FileNotFoundException {
         String f = handler.getResourceFilename("test.txt");
-        assertEquals("C:\\Windows\\test.txt", f);
+        String expectedResult = "MyDir" + FILE_SEPARATOR + "test.txt";
+        assertEquals( expectedResult, f);
     }
 }
