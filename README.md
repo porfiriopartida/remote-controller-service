@@ -102,14 +102,11 @@ java -jar myjar.jar --spring.config.location=<Path_to_your_configuration>
 ## Built With
 
 * [Maven](https://maven.apache.org/) - Dependency Management
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+* [Travis CI](https://travis-ci.com/ppartida/remote-controller-service) - Test CI
 
 ## Authors
 
-* **Porfirio Partida** - *Initial work* - [PurpleBooth](https://github.com/ppartida)
+* **[Porfirio Partida](https://github.com/ppartida)**
 
 See also the list of [contributors](https://github.com/ppartida/remote-controller-service/graphs/contributors) who participated in this project.
 
@@ -119,7 +116,9 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE.md](LIC
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
 * This uses the java.util.Robot class for most of the automation processes (if not for all) it won't work on a headless environment.
-* Inspiration
+* This project started to workaround those punishing games that require you to do actions every now and then, whenever you are out
+you cannot just do that, so I made this to help me collect my energies/do my daily logins in time when I'm away
+The idea is to allow a mobile application/web based support for now to do the triggers
+
 * This README was built thanks to  [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)'s template
