@@ -124,7 +124,7 @@ public class ThreadHandler {
 
             private boolean executeTestSteps(Step[] steps){
                 boolean result = false;
-                for (int i = 0; i < steps.length; i++) {
+                for (int i = 0; i < steps.length && isRunning ; i++) {
                     logger.debug(String.format("=== Running step %s:%s", i, steps[i].getFilenames()[0]));
                     Step step = steps[i];
                     try {
@@ -141,6 +141,10 @@ public class ThreadHandler {
                     }
                     if(!result){
                         logger.error(String.format("=======\nSomething went wrong with the step %s\n======", i));
+                        if(step.isWait()){
+                            isRunning = false;
+                            break;
+                        }
                     }
                 }
                 return result;
