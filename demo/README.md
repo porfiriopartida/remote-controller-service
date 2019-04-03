@@ -2,7 +2,7 @@
 
 ## From a release
 Download the latest release from - https://github.com/ppartida/remote-controller-service/releases/latest:
-Example: https://github.com/ppartida/remote-controller-service/releases/download/v0.1.1/remote-controller-v0.1.1.jar
+Example: https://github.com/ppartida/remote-controller-service/releases/download/v0.1.0/remote-controller-v0.1.0.jar
 remote-controller.jar
 
 ## Build your own .jar
