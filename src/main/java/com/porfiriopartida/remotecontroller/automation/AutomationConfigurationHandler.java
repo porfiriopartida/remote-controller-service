@@ -30,7 +30,7 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     private boolean strictMode;
     @Value("${automation.files.external_resources_path}")
     private String externalResourcesDirectory;
-
+    @Autowired
     private RobotUtils robotUtils;
 
     public AutomationConfigurationHandler(){
@@ -87,7 +87,7 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         File resource = new File(finalFilename );
         if(!resource.exists()){
             if(strictMode){
-                throw new FileNotFoundException(String.format("File not found: %s", filename));
+                throw new FileNotFoundException(String.format("File not found: %s", finalFilename));
             }
             return finalFilename;
         } else if(resource.isDirectory()){

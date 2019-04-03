@@ -17,7 +17,7 @@ public class AutomationEndpoints {
     public CustomResponse runTestCase(@PathVariable(name = "namespace") String namespace, @PathVariable(name = "test") String testCase) throws Exception {
         automationHandler.runTestCase(namespace, testCase);
 
-        String status = "Starting swgoh.";
+        String status = String.format("Running %s.%s", namespace, testCase);
 
         CustomResponse customResponse = new CustomResponse();
         customResponse.setStatus(status);

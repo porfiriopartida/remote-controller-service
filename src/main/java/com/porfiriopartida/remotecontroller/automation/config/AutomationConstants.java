@@ -6,8 +6,9 @@ public class AutomationConstants {
     public static final String RUN_FAILURE = "FAILURE";
 
 
-    public static final int SCAN_DELAY = 2000;
-    public static final int SCAN_DELAY_RND = 1000;
+    //TODO: Move to config
+    public static final int SCAN_DELAY = 500;
+    public static final int SCAN_DELAY_RND = 100;
 
 
     public static final String ALWAYS_CLICK_PATTERN = "automation.%s.test_cases.%s.always_click";

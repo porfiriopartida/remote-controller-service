@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: remote-controller
+    main:
+      web_environment: true
+server:
+  port: 8080
+  context-path: /
+  context_parameters:
+    defaultHtmlEscape: true
+
+mouse:
+  pressDelay: 10 #ms used for Thread.sleep(delay)
+  maxClicks: 3
+screen:
+  size:
+    width: 1920
+    height: 1080
+  capture:
+    centered: true
+    small:
+      width: 100
+      height: 50
+
+automation:
+  files:
+    external_resources_path: C:\tmp\demo # This must be the path where the files are (this directory)
+    strictMode: true
+  demo:
+    test_cases:
+      case_1:
+        steps:
+          1.PNG
+          3.PNG
+          1.PNG
+      case_2:
+        steps:
+          1.PNG
+          8.PNG
+          3.PNG
+          2.PNG
+          1.PNG

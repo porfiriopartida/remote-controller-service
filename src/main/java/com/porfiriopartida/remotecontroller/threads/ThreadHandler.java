@@ -25,6 +25,7 @@ public class ThreadHandler {
 
     @Autowired
     private RobotUtils robotUtils;
+
     RunStatus runStatus = RunStatus.NOT_RUN;
 
     public RunStatus getRunStatus() {
@@ -234,7 +235,7 @@ public class ThreadHandler {
     public RobotUtils getRobotUtils() {
         return robotUtils;
     }
-    @Autowired
+
     public void setRobotUtils(RobotUtils robotUtils) {
         this.robotUtils = robotUtils;
     }

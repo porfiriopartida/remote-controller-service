@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.porfiriopartida</groupId>
 	<artifactId>remote-controller</artifactId>
-	<version>v0.1.1</version>
+	<version>v0.1.1-SNAPSHOT</version>
 	<name>remote-controller</name>
 	<description>Demo project for Spring Boot</description>
 	<packaging>jar</packaging>

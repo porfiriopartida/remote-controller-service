@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -200,7 +201,8 @@ public class RobotUtils {
                 }
             }
             //TODO: move to configs.
-            Thread.sleep(100);
+            Thread.sleep(10);
+            //TODO: move to configs. 60000
             if(Calendar.getInstance().getTimeInMillis() - now > 60000){
                 System.err.println("Image not found after 60 seconds.");
                 break;

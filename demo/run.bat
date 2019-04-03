@@ -1,0 +1,1 @@
+java -jar remote-controller-v0.1.1.jar -Dspring.config.location=C:\tmp\demo_configuration.yml
