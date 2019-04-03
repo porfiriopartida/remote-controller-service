@@ -1,6 +1,5 @@
 package com.porfiriopartida.remotecontroller.automation.config;
 
-import com.porfiriopartida.remotecontroller.TestRemoteControllerApplication;
 import com.porfiriopartida.remotecontroller.automation.AutomationConfigurationHandler;
 import com.porfiriopartida.remotecontroller.automation.Step;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
@@ -14,18 +13,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.FileNotFoundException;
 
-import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
+import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.FILE_SEPARATOR;
 import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestRemoteControllerApplication.class)
+@SpringBootTest
 public class AutomationConfigurationHandlerConfigurationTest {
     @Autowired
     private AutomationConfigurationHandler handler;
     private RobotUtils robotUtilsMock;
+
     @Before
     public void init(){
         robotUtilsMock = EasyMock.createStrictMock(RobotUtils.class);
     }
+
     @Test
     public void testGetStepsNames(){
         String[] expectedArray = new String[]{"open_directory.png", "application_exe.png", "random_popup_close_button.png"};

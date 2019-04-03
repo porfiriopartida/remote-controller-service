@@ -7,6 +7,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -25,12 +26,17 @@ public class RobotUtils {
     private static final Logger logger = LogManager.getLogger(RobotUtils.class);
     private static final String OUT_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\out\\";
     private static final int TRANSPARENT_PIXEL = -1;
+
+    //Do not autowire or it will cause JUnit problems because of the headless environment issue.
     private Robot robot;
-    {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            logger.warn("Running in headless mode.");
+
+    public RobotUtils(){
+        if("false".equalsIgnoreCase(System.getProperty("java.awt.headless"))){
+            try {
+                robot = new Robot();
+            } catch (AWTException e) {
+                logger.error(String.format("Cannot start Robot instance %s", e.getMessage()));
+            }
         }
     }
 

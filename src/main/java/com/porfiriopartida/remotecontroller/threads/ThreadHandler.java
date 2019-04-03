@@ -234,7 +234,7 @@ public class ThreadHandler {
     public RobotUtils getRobotUtils() {
         return robotUtils;
     }
-
+    @Autowired
     public void setRobotUtils(RobotUtils robotUtils) {
         this.robotUtils = robotUtils;
     }

@@ -30,7 +30,7 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     private boolean strictMode;
     @Value("${automation.files.external_resources_path}")
     private String externalResourcesDirectory;
-    @Autowired
+
     private RobotUtils robotUtils;
 
     public AutomationConfigurationHandler(){
