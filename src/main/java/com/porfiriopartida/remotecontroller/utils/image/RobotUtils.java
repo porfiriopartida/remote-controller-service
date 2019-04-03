@@ -28,7 +28,7 @@ public class RobotUtils {
     private Robot robot;
     {
         try {
-		    System.setProperty("java.awt.headless", "true");
+		    System.setProperty("java.awt.headless", "false");
             robot = new Robot();
         } catch (AWTException e) {
             e.printStackTrace();
