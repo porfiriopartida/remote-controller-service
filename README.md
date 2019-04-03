@@ -99,6 +99,12 @@ Get the .jar file from: https://github.com/ppartida/remote-controller-service/re
 Start the service as any other spring boot application and provide a reference for your configuration file:
 java -jar myjar.jar --spring.config.location=<Path_to_your_configuration>
 
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/ppartida/remote-controller-service/tags).
+For version names we are using dog tricks. The first one is the easiest trick, but it is also the most important because it allows us to
+stablish communication now we deserve a treat.
+
 ## Built With
 
 * [Maven](https://maven.apache.org/) - Dependency Management
