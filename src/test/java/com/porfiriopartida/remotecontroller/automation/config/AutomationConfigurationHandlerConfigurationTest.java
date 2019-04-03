@@ -1,5 +1,6 @@
 package com.porfiriopartida.remotecontroller.automation.config;
 
+import com.porfiriopartida.remotecontroller.TestRemoteControllerApplication;
 import com.porfiriopartida.remotecontroller.automation.AutomationConfigurationHandler;
 import com.porfiriopartida.remotecontroller.automation.Step;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
@@ -16,14 +17,13 @@ import java.io.FileNotFoundException;
 import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
 import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestRemoteControllerApplication.class)
 public class AutomationConfigurationHandlerConfigurationTest {
     @Autowired
     private AutomationConfigurationHandler handler;
     private RobotUtils robotUtilsMock;
     @Before
     public void init(){
-        System.setProperty("java.awt.headless", "true");
         robotUtilsMock = EasyMock.createStrictMock(RobotUtils.class);
     }
     @Test

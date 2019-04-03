@@ -1,4 +1,4 @@
-package com.porfiriopartida.remotecontroller;
+package com.porfiriopartida.remotecontroller.threads;
 
 public class TestCaseThread extends Thread{
     private boolean isReady;

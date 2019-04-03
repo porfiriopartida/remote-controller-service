@@ -1,4 +1,4 @@
-package com.porfiriopartida.remotecontroller;
+package com.porfiriopartida.remotecontroller.threads;
 
 import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
 import com.porfiriopartida.remotecontroller.automation.Step;

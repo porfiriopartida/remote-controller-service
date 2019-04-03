@@ -1,7 +1,7 @@
 package com.porfiriopartida.remotecontroller.automation;
 
-import com.porfiriopartida.remotecontroller.ThreadHandler;
-import com.porfiriopartida.remotecontroller.ThreadHandlerCallback;
+import com.porfiriopartida.remotecontroller.threads.ThreadHandler;
+import com.porfiriopartida.remotecontroller.threads.ThreadHandlerCallback;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

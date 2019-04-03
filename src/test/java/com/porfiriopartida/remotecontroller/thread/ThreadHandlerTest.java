@@ -1,6 +1,8 @@
-package com.porfiriopartida.remotecontroller;
+package com.porfiriopartida.remotecontroller.thread;
 
 import com.porfiriopartida.remotecontroller.automation.Step;
+import com.porfiriopartida.remotecontroller.threads.TestCaseValidationException;
+import com.porfiriopartida.remotecontroller.threads.ThreadHandler;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.easymock.EasyMock;
 import org.junit.Test;
