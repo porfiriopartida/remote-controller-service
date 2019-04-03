@@ -23,6 +23,7 @@ public class AutomationConfigurationHandlerConfigurationTest {
     private RobotUtils robotUtilsMock;
     @Before
     public void init(){
+        System.setProperty("java.awt.headless", "true");
         robotUtilsMock = EasyMock.createStrictMock(RobotUtils.class);
     }
     @Test

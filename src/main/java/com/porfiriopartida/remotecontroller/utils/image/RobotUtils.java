@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 @Component
 public class RobotUtils {
+    private static final Logger logger = LogManager.getLogger(RobotUtils.class);
     private static final String OUT_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\out\\";
     private static final int TRANSPARENT_PIXEL = -1;
     private Robot robot;
@@ -29,10 +30,9 @@ public class RobotUtils {
         try {
             robot = new Robot();
         } catch (AWTException e) {
-            e.printStackTrace();
+            logger.warn("Running in headless mode.");
         }
     }
-    private static final Logger logger = LogManager.getLogger(RobotUtils.class);
 
     @Autowired
     private ScreenCaptureConfig screenCaptureConfig;
