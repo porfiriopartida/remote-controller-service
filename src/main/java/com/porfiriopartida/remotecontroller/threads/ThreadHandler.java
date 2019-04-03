@@ -140,12 +140,10 @@ public class ThreadHandler {
                         e.printStackTrace();
                         result = false;
                     }
-                    if(!result){
+                    if(!result && step.isWait()){
                         logger.error(String.format("=======\nSomething went wrong with the step %s\n======", i));
-                        if(step.isWait()){
-                            isRunning = false;
-                            break;
-                        }
+                        isRunning = false;
+                        break;
                     }
                 }
                 return result;

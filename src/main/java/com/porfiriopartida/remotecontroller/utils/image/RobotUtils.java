@@ -125,15 +125,24 @@ public class RobotUtils {
         return String.format(imageWrapper, encodedImage);
     }
 
-    public void triggerClick(int x, int y, int count) throws InterruptedException {
-        robot.mouseMove(x, y);
-        Thread.sleep(500);
+    public boolean triggerClick(int x, int y, int count) throws InterruptedException {
+        return this.triggerClick(new Point(x, y), count);
+    }
+
+    public boolean triggerClick(Point coords, int count) throws InterruptedException {
+        robot.mouseMove((int)coords.getX(), (int)coords.getY());
+        Thread.sleep(200); //TODO: Config
+        if(!isMouseInPosition(coords)){
+            logger.warn("Mouse was not moved to the right position.");
+            return false;
+        }
         for(int i = 0; i<count && i < mouseConfig.getMaxClicks(); i++){
             robot.mousePress(InputEvent.BUTTON1_MASK);
             Thread.sleep(mouseConfig.getPressDelay());
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
             Thread.sleep(500);
         }
+        return true;
     }
 
     public int[][] getRgbFromImage(String filename) throws IOException {
@@ -196,8 +205,7 @@ public class RobotUtils {
             for( String filename : filenames){
                 Point coords = findOnScreen(filename);
                 if(coords != null){
-                    triggerClick((int)coords.getX(), (int)coords.getY(), 1);
-                    return true;
+                    return clickOnScreen(coords);
                 }
             }
             //TODO: move to configs.
@@ -210,13 +218,19 @@ public class RobotUtils {
         }
         return false;
     }
-    public boolean clickOnScreen(String filename) throws IOException, AWTException, InterruptedException {
-        Point coords = findOnScreen(filename);
+    private boolean isMouseInPosition(Point coords){
+        return MouseInfo.getPointerInfo().getLocation().equals(coords);
+    }
+
+    public boolean clickOnScreen(Point coords) throws IOException, AWTException, InterruptedException {
         if(coords != null){
-            triggerClick((int)coords.getX(), (int)coords.getY(), 1);
-            return true;
+            return triggerClick(coords, 1);
         }
         return false;
+    }
+    public boolean clickOnScreen(String filename) throws IOException, AWTException, InterruptedException {
+        Point coords = findOnScreen(filename);
+        return clickOnScreen(coords);
     }
 
     public Point findOnScreen(String filename) throws IOException, AWTException {
