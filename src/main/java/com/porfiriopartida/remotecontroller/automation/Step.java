@@ -7,6 +7,7 @@ public class Step {
     private String testName;
     private RunStatus runStatus = RunStatus.NOT_RUN;
     private String stepName;
+    private Command command;
 
     public static Step[] fromArray(String namespace, String testCase, String[] array){
         Step[] steps = new Step[array.length];
@@ -89,5 +90,9 @@ public class Step {
 
     public String getStepName() {
         return stepName;
+    }
+
+    public Command getCommand() {
+        return this.command;
     }
 }

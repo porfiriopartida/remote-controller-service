@@ -19,9 +19,9 @@ automation:
           random_popup_close_button.png
       start_application_test_case:
         steps:
-          open_directory.png
-          application_exe.png
-          random_popup_close_button.png
+          - open_directory.png
+          - application_exe.png
+          - click random_popup_close_button.png
       always_click_test:
         steps:
           1|open_directory.png

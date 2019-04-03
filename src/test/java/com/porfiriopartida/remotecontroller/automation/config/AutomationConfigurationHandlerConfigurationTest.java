@@ -1,6 +1,7 @@
 package com.porfiriopartida.remotecontroller.automation.config;
 
 import com.porfiriopartida.remotecontroller.automation.AutomationConfigurationHandler;
+import com.porfiriopartida.remotecontroller.automation.Command;
 import com.porfiriopartida.remotecontroller.automation.Step;
 import com.porfiriopartida.remotecontroller.utils.image.RobotUtils;
 import org.easymock.EasyMock;
@@ -40,6 +41,7 @@ public class AutomationConfigurationHandlerConfigurationTest {
             assertNotNull(steps[i].getFilenames());
             assertNotNull(steps[i].getFilenames()[0]);
             assertEquals(steps[i].getFilenames()[0], expectedArray[i]);
+            assertEquals(steps[i].getCommand(), Command.CLICK);
         }
     }
     @Test
