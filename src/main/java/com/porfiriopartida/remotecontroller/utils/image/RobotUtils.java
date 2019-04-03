@@ -23,12 +23,10 @@ import java.util.HashMap;
 @Component
 public class RobotUtils {
     private static final String OUT_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\out\\";
-    private static final String IN_DIR = "D:\\Java\\remote-controller\\remote-controller\\src\\main\\resources\\in\\";
     private static final int TRANSPARENT_PIXEL = -1;
     private Robot robot;
     {
         try {
-		    System.setProperty("java.awt.headless", "false");
             robot = new Robot();
         } catch (AWTException e) {
             e.printStackTrace();
