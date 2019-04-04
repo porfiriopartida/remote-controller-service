@@ -9,16 +9,17 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
+import java.awt.AWTException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 @Component
 public class ThreadHandler {
+    private static final Logger logger = LogManager.getLogger(ThreadHandler.class);
     private ThreadHandlerCallback callback;
     private boolean isRunning = false;
-    private static final Logger logger = LogManager.getLogger(ThreadHandler.class);
+    public static final String TEST_CASE_RUNNING_EXCEPTION = "Test Case is already running";
 
     private Random rnd = new Random();
     private ArrayList<TestCaseThread> threads;
@@ -63,7 +64,6 @@ public class ThreadHandler {
 
     private TestCaseThread testCaseThread;
 
-    public static final String TEST_CASE_RUNNING_EXCEPTION = "Test Case is already running";
     public void setup(String[] alwaysClick, Step[] steps) throws Exception {
         if(isRunning) {
             throw new Exception(TEST_CASE_RUNNING_EXCEPTION);

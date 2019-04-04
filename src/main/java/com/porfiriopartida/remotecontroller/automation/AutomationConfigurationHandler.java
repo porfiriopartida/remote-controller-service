@@ -8,23 +8,22 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+
 import static com.porfiriopartida.remotecontroller.automation.config.AutomationConstants.*;
 
 @Component
 public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     private static final Logger logger = LogManager.getLogger(AutomationConfigurationHandler.class);
 
-    @Resource
-    public Environment env;
+    @Autowired
+    AutomationConfiguration configuration;
 
-    public String[] identifiersValues;
+//    public String[] identifiersValues;
     //TODO: Move to config file class
     @Value("${automation.files.strictMode}")
     private boolean strictMode;
@@ -33,32 +32,12 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
     @Autowired
     private RobotUtils robotUtils;
 
-    public AutomationConfigurationHandler(){
-    }
-
-    private void buildIdentifiers() {
-        if(identifiersValues != null){
-            return;
-        }
-        String defaultIdentifier = env.getProperty("automation.identifiers.default");
-        DEFAULT_IDENTIFIER = defaultIdentifier == null ? DEFAULT_IDENTIFIER:defaultIdentifier;
-        String identifiersValuesStr = env.getProperty("automation.identifiers.values");
-        if(identifiersValuesStr == null){
-            identifiersValues = new String[]{};
-        } else {
-            identifiersValues = identifiersValuesStr.split(IDENTIFIER_SPLITTER);
-        }
-    }
-
-    public String getAlwaysClickResource(String namespace, String testCase, String resource) throws FileNotFoundException {
+    private String getAlwaysClickResource(String namespace, String testCase, String resource) throws FileNotFoundException {
         String filename = String.format("in/%s/test_cases/%s/always_click/%s", namespace, testCase, resource);
         return getResourceFilename(filename);
     }
-    public String getIdentifiersResource(String namespace, String resource) throws FileNotFoundException {
-        String filename = String.format("in/%s/identifiers/%s", namespace, resource);
-        return getResourceFilename(filename);
-    }
-    public final String[] getTestStepResources(String namespace, String testName, String[] filenames) throws FileNotFoundException {
+
+    private final String[] getTestStepResources(String namespace, String testName, String[] filenames) throws FileNotFoundException {
         String format = "in/%s/test_cases/%s/%s";
         String[] resources = new String[filenames.length];
         for (int i = 0; i < resources.length; i++) {
@@ -97,20 +76,20 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         return resource.getPath();
     }
     public Step[] getSteps(String namespace, String testCase){
-        String stepsString = getStepsString(namespace, testCase);
-        String[] stepsArray = stepsString.split(" "); //the resulting string from envs is always space.
+        List<String> stepsArray = getStepsStringList(namespace, testCase);
         return Step.fromArray(namespace, testCase, stepsArray);
     }
-    public String getStepsString(String namespace, String testCase){
+    public List<String> getStepsStringList(String namespace, String testCase){
         String propertyFormat = "automation.%s.test_cases.%s.steps";
         String propertyString = String.format(propertyFormat, namespace, testCase);
-        return env.getProperty(propertyString);
+        return (List<String>) configuration.getProperty(propertyString);
     }
 
     public void runTestCase(String namespace, String testCase) throws Exception {
         IDENTIFIER = DEFAULT_IDENTIFIER;
-        final Environment environment = this.env;
-        String alwaysClickConfiguration = environment.getProperty(String.format(ALWAYS_CLICK_PATTERN, namespace, testCase));
+        List<String> list = (List<String>) configuration.getProperty(String.format(ALWAYS_CLICK_PATTERN, namespace, testCase));
+        String[] alwaysClickArray = new String[list.size()];
+        alwaysClickArray = list.toArray(alwaysClickArray);
 //        String identifyConfiguration = environment.getProperty(String.format(IDENTIFY_PATTERN, namespace));
 
         //This is just so these are put in context and run once (they are a while true thread)
@@ -118,12 +97,9 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         threadHandler.setRobotUtils(this.robotUtils);
         threadHandler.setName(String.format("%s.%s", namespace, testCase));
         Step[] steps = null;
-        String[] alwaysClickArray = null;
 
         logger.debug("Initializing threads for always/identifiers");
-        if(!StringUtils.isEmpty(alwaysClickConfiguration)){
-            alwaysClickArray = alwaysClickConfiguration.split(" ");
-
+        if(alwaysClickArray.length > 0){
             for(int i = 0; i<alwaysClickArray.length;i++){
                 alwaysClickArray[i] = getAlwaysClickResource(namespace, testCase, alwaysClickArray[i]);
             }
@@ -132,9 +108,8 @@ public class AutomationConfigurationHandler implements ThreadHandlerCallback {
         if(testCase != null){
             steps = getSteps(namespace, testCase);
 
-            for (int i = 0; i < steps.length; i++) {
-                Step step = steps[i];
-                step.setFilenames( getTestStepResources(namespace, testCase, step.getFilenames()));
+            for (Step step : steps) {
+                step.setFilenames(getTestStepResources(namespace, testCase, step.getFilenames()));
             }
         }
 

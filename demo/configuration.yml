@@ -1,33 +1,7 @@
-spring:
-  application:
-    name: remote-controller
-    main:
-      web_environment: true
-server:
-  port: 8080
-  context-path: /
-  context_parameters:
-    defaultHtmlEscape: true
-
-screen:
-  size:
-    width: 1920
-    height: 1080
-  capture:
-    centered: true
-    small:
-      width: 100
-      height: 50
-mouse:
-  pressDelay: 10 #ms used for Thread.sleep(delay)
-  maxClicks: 3
-
-
 automation:
-  configuration: demo/configuration.yml
   files:
-    external_resources_path: MyDir
-    strictMode: false
+    external_resources_path: MyDir #Not yet used
+    strictMode: false # Not yet used
   identifiers:
     default: TestIdentifier
     values: TestVal1,TestVal2

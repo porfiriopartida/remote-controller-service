@@ -21,3 +21,9 @@ screen:
     small:
       width: 100
       height: 50
+
+automation:
+  configuration: configuration.yml
+  files:
+    strictMode: true
+    external_resources_path: MyDir

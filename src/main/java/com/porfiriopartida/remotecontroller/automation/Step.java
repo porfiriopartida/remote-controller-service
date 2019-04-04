@@ -1,5 +1,7 @@
 package com.porfiriopartida.remotecontroller.automation;
 
+import java.util.List;
+
 public class Step {
     private boolean wait;
     private String[] filenames;
@@ -8,6 +10,10 @@ public class Step {
     private RunStatus runStatus = RunStatus.NOT_RUN;
     private String stepName;
 
+
+    public static Step[] fromArray(String namespace, String testCase, List<String> list){
+        return fromArray(namespace, testCase, list.toArray(new String[list.size()]));
+    }
     public static Step[] fromArray(String namespace, String testCase, String[] array){
         Step[] steps = new Step[array.length];
         for (int i = 0; i < array.length; i++) {
